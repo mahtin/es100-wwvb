@@ -15,7 +15,7 @@ version: 2
 # Optionally declare the Python requirements required to build your docs
 python:
   install:
-  #- requirements: docs/requirements.txt
+  - requirements: docs/requirements.txt
   - requirements: requirements.txt
 
 # Set the version of Python and other tools you might need
@@ -23,11 +23,8 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3"
-    # golang: "1.19"
-  apt_packages:
-    rpi.gpio
-    #- libclang
-    #- cmake
+  #apt_packages:
+  #  - rpi.gpio
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
