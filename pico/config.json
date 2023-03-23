@@ -1,0 +1,16 @@
+{
+    "wwvb.bus": 1,
+    "wwvb.address": 50,
+    "wwvb.irq": 16,
+    "wwvb.en": 17,
+    "wwvb.station": "sjc",
+    "debug.debug": false,
+    "debug.verbose": false,
+    "sjc.name": "San José Mineta International Airport",
+    "sjc.location": [
+        37.363056,
+        -121.928611
+    ],
+    "sjc.masl": "18.9",
+    "sjc.antenna": null
+}

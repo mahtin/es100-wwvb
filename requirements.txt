@@ -1,0 +1,4 @@
+smbus
+ephem
+RPi.GPIO
+sysv_ipc
