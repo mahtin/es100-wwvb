@@ -5,6 +5,6 @@ Copyright (C) 2023 Martin J Levy - W6LHI/G8LHI - @mahtin - https://github.com/ma
 
 from .es100 import ES100, ES100Error
 
-__version__ = '0.4.2'
+__version__ = '0.4.3'
 
 __all__ = ['ES100', 'ES100Error']
