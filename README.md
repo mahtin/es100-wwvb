@@ -327,6 +327,7 @@ If you are runing `wwvb` as a daemon, then the `/etc/wwvb.ini` file would be a b
 The Pico support runs without features like **NTP**, it does set the RTC (Real Time Clock) on the **Pico** based on the **WWVB** time.
 At the present time, there's minimal instruction for this. See below.
 
+![](https://github.com/mahtin/es100-wwvb/raw/main/images/raspberry-pi-pico-w-es100-mod.jpg)
 
 To run the code on a **Raspberry Pi Pico W** using `micropython`, first clone the github repo.
 ```bash
