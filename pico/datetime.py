@@ -97,20 +97,7 @@ class datetime:
         """
         # RTC return weekday (which is useless) and microsecond which is inaccurate or zero
         (year, month, day, _, hour, minute, second, _) = RTC().datetime()
-        subseconds_ms = (utime.ticks_ms() % 1000) - datetime.initial_ticks_ms
-        if subseconds_ms < 0:
-            subseconds_ms += 1000
-            second -= 1
-            if second < 0:
-                second = 59
-                minute -= 1
-                if minute < 0:
-                    minute = 59
-                    hour -= 1
-                    if hour < 0:
-                        hour = 23
-                        # YUCK go back a day - no idea how to do that - cheat!
-                        sys.exit('RTC error - not coded')
+        subseconds_ms = int((utime.ticks_ms() - datetime.initial_ticks_ms) % 1000)
         return datetime(year, month, day, hour, minute, second, subseconds_ms * 1000)
 
     @classmethod
