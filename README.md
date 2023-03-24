@@ -6,7 +6,7 @@ A time and date decoder for the **ES100-MOD** **WWVB** receiver.
 This code implements tracking (for daytime reception) and full receive decoding (for nighttime reception).
 It provides Daylight Saving information and Leap Second information, if WWVB provides it.
 
-It's written 100% in Python and tested on the **Raspberry Pi4** and on the **Raspberry Pi Pico W** (using `micropython`).
+It's written 100% in Python and tested on the **Raspberry Pi4** and on the **Raspberry Pi Pico W** (using `micropython`) with, or without an OLED display.
 
 The core ES100 library fully implements all the features described in **ES100 Data Sheet - Ver 0.97**.
 
@@ -370,6 +370,18 @@ WWVB: 2023-03-22 14:20:29.000+00:00 2023-03-22 14:20:29.033+00:00 Antenna2 -0.03
 WWVB: 2023-03-22 14:24:55.000+00:00 2023-03-22 14:24:55.001+00:00 Antenna2 -0.001
 ...
 ```
+
+## Adding an OLED display to the Pico
+
+The code includes basic code to drive an OLED I2C display.
+Presently tested with an **I2C 0.96 Inch OLED I2C 128x64 Pixel Display Module** purchased from Amazon at [https://www.amazon.com/dp/B09C5K91H7](https://www.amazon.com/dp/B09C5K91H7).
+This code will operate silently without that display attached.
+The code expects to be wired to I2C `bus0` using pins `GP8` & `GP9` (this can be changed in code).
+Refer to the `oled_display.py` file for more information.
+
+![](https://github.com/mahtin/es100-wwvb/raw/main/images/raspberry-pi-pico-w-es100-mod-with-oled.jpg)
+
+The display will update the screen once a WWVB signal has been received.
 
 This software port will be expanded upon over time.
 
