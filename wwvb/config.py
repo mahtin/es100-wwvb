@@ -11,6 +11,7 @@ import configparser
 def readconfig(filename='wwvb.ini'):
     """ readconfig()
     :param filename: config file name
+
     Read config file (which is wwvb.ini by default.
     """
     cp = configparser.ConfigParser()
