@@ -7,8 +7,12 @@ Copyright (C) 2023 Martin J Levy - W6LHI/G8LHI - @mahtin - https://github.com/ma
 import sys
 import json
 
+import utime
+from machine import Timer
+
 from es100 import ES100
 from pico.datetime import datetime
+from pico.oled_display import OLEDDisplay128x64
 
 MY_LOCATION = [37.363056, -121.928611, 18.9]  # SJC Airport
 
@@ -87,6 +91,60 @@ def wwvb_lite():
     except KeyboardInterrupt:
         sys.exit('^C')
 
+class SimpleOLED:
+    """ SimpleOLED
+
+    Text based display of WWVB data
+    """
+
+    _ms_start = None
+    _d = None
+
+    @classmethod
+    def _mycallback(cls, t):
+        """ _mycallback() """
+        SimpleOLED._d.datetime()
+        percent = ((utime.ticks_ms() - SimpleOLED._ms_start)/134000.0) % 1.0
+        SimpleOLED._d.progress_bar(percent, 0, 16)
+
+    def __init__(self):
+        """ __init__ """
+        self._d = OLEDDisplay128x64()
+
+        # needed for callback
+        SimpleOLED._ms_start = utime.ticks_ms()
+        SimpleOLED._d = self._d
+
+        self._tim = Timer(-1)
+        self._tim.init(period=100, mode=Timer.PERIODIC, callback=SimpleOLED._mycallback)
+
+    def background(self):
+        """ background() """
+        self._d.background()
+        self._d.datetime()
+        self._d.progress_bar(0.0, 0, 16)
+        self._d.text('Ant:   %s' % (''), 0, 24)
+        self._d.text('Delta: %s' % (''), 0, 32)
+        self._d.text('DST:   %s' % (''), 0, 40)
+        self._d.text('Leap:  %s' % (''), 0, 48)
+        self._d.text('Count:          ', 0, 56)
+
+    def update(self, ant, delta, dst, leap):
+        """ update() """
+        # wwvb_display._d.datetime()
+        self._d.text('Ant:   %s' % (ant), 0, 24)
+        self._d.text('Delta: %5.3f' % (delta), 0, 32)
+        self._d.text('DST:   %s' % (dst), 0, 40)
+        self._d.text('Leap:  %s' % (leap), 0, 48)
+
+    def update_counts(self, successes, loops):
+        """ update_counts() """
+        self._d.text('Count: %d/%d' % (successes, loops), 0, 56)
+
+    def reset_timer(self):
+        """ reset_timer() """
+        SimpleOLED._ms_start = utime.ticks_ms()
+
 def doit(antenna, irq, en, bus, address, verbose=False, debug=False):
     """ doit()
     :param en: Enable pin number
@@ -100,17 +158,31 @@ def doit(antenna, irq, en, bus, address, verbose=False, debug=False):
     No frills loop to operate the ES100-MOD on the Raspberry Pi
     """
     try:
-        es = ES100(antenna=None, en=en, irq=irq, bus=bus, address=address, verbose=verbose, debug=debug)
+        es = ES100(antenna=antenna, en=en, irq=irq, bus=bus, address=address, verbose=verbose, debug=debug)
     except Exception as err:
         # can't find device!
         print(err)
         return
 
-    # loop forever - setting the system RTC as you proceed
+    count_successes = 0
+    count_loops = 0
+
+    d = SimpleOLED()
+    d.background()
+
+    # loop forever - setting the system RTC as we proceed
     while True:
+        d.reset_timer()
+
         dt = es.time()
         if dt:
             print('WWVB:',dt, es.system_time(), es.rx_antenna(), es.delta_seconds())
 
             # set system time
             datetime.setrtc(dt)
+
+            count_successes += 1
+            d.update(es.rx_antenna(), es.delta_seconds(), es.is_presently_dst(), es.leap_second())
+
+        count_loops += 1
+        d.update_counts(count_successes, count_loops)
