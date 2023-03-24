@@ -123,11 +123,11 @@ class SimpleOLED:
         self._d.background()
         self._d.datetime()
         self._d.progress_bar(0.0, 0, 16)
-        self._d.text('Ant:   %s' % (''), 0, 24)
-        self._d.text('Delta: %s' % (''), 0, 32)
-        self._d.text('DST:   %s' % (''), 0, 40)
-        self._d.text('Leap:  %s' % (''), 0, 48)
-        self._d.text('Count:          ', 0, 56)
+        self._d.text('Ant:', 0, 24)
+        self._d.text('Delta:', 0, 32)
+        self._d.text('DST:', 0, 40)
+        self._d.text('Leap:', 0, 48)
+        self._d.text('Count:', 0, 56)
 
     def update(self, ant, delta, dst, leap):
         """ update() """
