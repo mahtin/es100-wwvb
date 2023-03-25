@@ -119,8 +119,13 @@ class SimpleOLED:
         SimpleOLED._ms_start = utime.ticks_ms()
         SimpleOLED._d = self._d
 
-        self._tim = Timer(-1)
-        self._tim.init(period=100, mode=Timer.PERIODIC, callback=SimpleOLED._mycallback)
+        self._timer = Timer(-1)
+        self._timer.init(period=100, mode=Timer.PERIODIC, callback=SimpleOLED._mycallback)
+
+    def __del__(self):
+        if self._timer:
+            # kill the timer
+            self._timer.deinit()
 
     def background(self):
         """ background() """
