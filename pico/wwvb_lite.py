@@ -12,6 +12,7 @@ from machine import Timer
 
 from es100 import ES100
 from pico.datetime import datetime
+from pico.logging import logging
 from pico.oled_display import OLEDDisplay128x64
 
 MY_LOCATION = [37.363056, -121.928611, 18.9]  # SJC Airport
@@ -85,6 +86,9 @@ def wwvb_lite():
         flag_debug = config['debug.debug']
     if 'debug.verbose' in config:
         flag_verbose = config['debug.verbose']
+
+    # we want any warnings - there should be very few!
+    logging.basicConfig(level=logging.WARNING)
 
     try:
         doit(antenna=antenna_choice, irq=es100_irq, en=es100_en, bus=i2c_bus, address=i2c_address, verbose=flag_verbose, debug=flag_debug)
