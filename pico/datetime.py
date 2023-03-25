@@ -110,7 +110,7 @@ class datetime:
         # setting microseconds does nothing
         now = (dt.year, dt.month, dt.day, 0, dt.hour, dt.minute, dt.second, 0)
         # we should adjust calibrate so it's still correct
-        # XXX todo
+        cls.initial_ticks_ms = utime.ticks_ms() % 1000
         RTC().datetime(now)
 
     @property
