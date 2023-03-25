@@ -28,6 +28,9 @@ The core ES100 library fully implements all the features described in ES100 Data
    :caption: Contents:
 
 
+.. include:: modules.rst
+
+
 Indices and tables
 ==================
 
