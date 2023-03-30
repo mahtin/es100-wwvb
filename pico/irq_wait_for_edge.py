@@ -18,8 +18,8 @@ def irq_triggered(pin):
 
 def irq_wait_for_edge(gpio_irq, timeout=None):
     global irq_triggered_done
-    led_on()
-    count = 0
+    led_off()
+    blink_the_led_counter = 0
     irq_triggered_done = False
     gpio_irq.irq(handler=irq_triggered, trigger=Pin.IRQ_FALLING|Pin.IRQ_RISING)
     start_ms = time.ticks_ms()
@@ -29,12 +29,12 @@ def irq_wait_for_edge(gpio_irq, timeout=None):
                 gpio_irq.irq(handler=None, trigger=Pin.IRQ_FALLING|Pin.IRQ_RISING)
                 led_off()
                 return None
-        count += 1
-        if count == 1000:
-            led_off()
-        if count >= 2000:
+        blink_the_led_counter += 1
+        if blink_the_led_counter == 500:
             led_on()
-            count = 0
+        if blink_the_led_counter >= 1000:
+            led_off()
+            blink_the_led_counter = 0
         # annoyingly, this is all we can do - a small sleep
         time.sleep(0.001)
     led_off()
