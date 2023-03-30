@@ -10,7 +10,6 @@ Copyright (C) 2023 Martin J Levy - W6LHI/G8LHI - @mahtin - https://github.com/ma
 from machine import Pin, I2C
 
 from pico.ssd1306 import SSD1306_I2C
-from pico.datetime import datetime, timezone
 
 class OLEDDisplay128x64:
     """ OLEDDisplay128x64 """
@@ -49,16 +48,19 @@ class OLEDDisplay128x64:
         self._ssd1306.fill_rect(0, 16, 128, 48, 0)    # blue area (if your display is that type)
         self._ssd1306.show()
 
-    def datetime(self):
+    def datetime(self, dt=None):
         """ datetime() """
         if not self._ssd1306:
             return
-        dt = datetime.utcnow().replace(tzinfo=timezone.utc)
+        self._ssd1306.fill_rect(0, 0, 128, 16, 0)
+        if dt is None:
+            # leave screen blank
+            self._ssd1306.show()
+            return
         msec = int(dt.microsecond/1000.0)
         dt = dt.replace(microsecond=msec*1000)
         # 2023-03-22 17:57:42.803+00:00
         date_str = str(dt)
-        self._ssd1306.fill_rect(0, 0, 128, 16, 0)
         self._ssd1306.text('%s' % date_str[0:0+10], 0, 0, 1)
         self._ssd1306.text('%s   UTC' % date_str[11:11+10], 0, 8, 1)
         self._ssd1306.show()

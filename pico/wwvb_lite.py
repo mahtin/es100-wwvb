@@ -11,7 +11,7 @@ import utime
 from machine import Timer
 
 from es100 import ES100
-from pico.datetime import datetime
+from pico.datetime import datetime, timezone
 from pico.logging import logging
 from pico.oled_display import OLEDDisplay128x64
 
@@ -101,14 +101,19 @@ class SimpleOLED:
     Text based display of WWVB data
     """
 
-    _ms_start = None
     _d = None
+    _ms_start = None
+    _timer = None
 
     @classmethod
     def _mycallback(cls, t):
         """ _mycallback() """
-        SimpleOLED._d.datetime()
-        percent = ((utime.ticks_ms() - SimpleOLED._ms_start)/134000.0) % 1.0
+        if SimpleOLED._timer is None or SimpleOLED._ms_start is None:
+            # should not have been called
+            return
+        dt = datetime.utcnow().replace(tzinfo=timezone.utc)
+        SimpleOLED._d.datetime(dt)
+        percent = ((utime.ticks_ms() - SimpleOLED._ms_start)/((134+10)*1000.0) % 1.0
         SimpleOLED._d.progress_bar(percent, 0, 16)
 
     def __init__(self):
@@ -119,18 +124,20 @@ class SimpleOLED:
         SimpleOLED._ms_start = utime.ticks_ms()
         SimpleOLED._d = self._d
 
-        self._timer = Timer(-1)
-        self._timer.init(period=100, mode=Timer.PERIODIC, callback=SimpleOLED._mycallback)
+        SimpleOLED._timer = Timer(-1)
+        SimpleOLED._timer.init(period=100, mode=Timer.PERIODIC, callback=SimpleOLED._mycallback)
 
     def __del__(self):
-        if self._timer:
+        if SimpleOLED._timer:
             # kill the timer
-            self._timer.deinit()
+            SimpleOLED._timer.deinit()
+            SimpleOLED._timer = None
+            SimpleOLED._ms_start = None
 
     def background(self):
         """ background() """
         self._d.background()
-        self._d.datetime()
+        self._d.datetime(None)
         self._d.progress_bar(0.0, 0, 16)
         self._d.text('Ant:', 0, 24)
         self._d.text('Delta:', 0, 32)
@@ -140,7 +147,6 @@ class SimpleOLED:
 
     def update(self, ant, delta, dst, leap):
         """ update() """
-        # wwvb_display._d.datetime()
         self._d.text('Ant:   %s' % (ant), 0, 24)
         self._d.text('Delta: %5.3f' % (delta), 0, 32)
         self._d.text('DST:   %s' % (dst), 0, 40)
