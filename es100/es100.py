@@ -323,7 +323,7 @@ class ES100:
 
     def _wait_for_interrupt(self, timeout=None):
         """ _wait_for_interrupt """
-        self._log.info('wait for irq')
+        self._log.debug('wait for irq')
         self._system_time_received = None
         irq_happened = self._gpio.irq_wait(timeout)
         # save away the current time quikly - i.e. time of decoded reception
@@ -402,8 +402,8 @@ class ES100:
         """ _write_control0 """
         self._write_register(int(ES100.REGISTERS.CONTROL0), val)
 
-    def _report_status0_and_irq_reg(self):
-        """ _report_status0_and_irq_reg """
+    def _read_and_report_status0_and_irq_reg(self):
+        """ _read_and_report_status0_and_irq_reg """
         self._irq_status = self._get_irq_status()
         self._cycle_complete = bool(self._irq_status & ES100.IRQSTATUS.CYCLE_COMPLETE)
         self._rx_complete = bool(self._irq_status & ES100.IRQSTATUS.RX_COMPLETE)
@@ -432,8 +432,8 @@ class ES100:
                             'RX_OK' if self._status_ok else '-',
                     )
 
-    def _report_control0_reg(self):
-        """ _report_control0_reg """
+    def _read_and_report_control0_reg(self):
+        """ _read_and_report_control0_reg """
         self._control0 = self._get_control0()
 
         # we don't need to save any of thise bits becuase they aren't referenced
@@ -468,8 +468,6 @@ class ES100:
             else:
                 control0 |= ES100.CONTROL0.ANT1_OFF
             self._write_control0(control0)
-        # perform read of control0 register
-        self._report_control0_reg()
 
     def _start_tracking(self):
         """ _start_tracking """
@@ -498,7 +496,7 @@ class ES100:
                 self._device_id = 0x00
 
         if self._device_id != 0x10:
-            self._log.info('device ID = 0x%02x (unknown device)', self._device_id)
+            self._log.warning('device ID = 0x%02x (unknown device)', self._device_id)
             return False
 
         self._log.info('device ID = 0x%02x (confirmed as ES100-MOD)', self._device_id)
@@ -529,9 +527,12 @@ class ES100:
         else:
             self._start_tracking()
 
+        # perform read of control0 register
+        self._read_and_report_control0_reg()
+
         # loop until time received
         while True:
-            self._report_status0_and_irq_reg()
+            self._read_and_report_status0_and_irq_reg()
 
             if self._rx_complete:
                 # we have info - let's  go do stuff!
@@ -687,10 +688,10 @@ class ES100:
             self._leap_second = None
         if self._lsw_bits == 0x2:
             self._leap_second = 'negative'
-            self._log.info('%s leap second', self._leap_second)
+            self._log.debug('%s leap second', self._leap_second)
         elif self._lsw_bits == 0x3:
             self._leap_second = 'positive'
-            self._log.info('%s leap second', self._leap_second)
+            self._log.debug('%s leap second', self._leap_second)
 
         if self._dst_bits == 0x0:
             self._dst = self._dst_begins_today = self._dst_ends_today = False
@@ -705,7 +706,7 @@ class ES100:
             self._dst_begins_today = self._dst_ends_today = False
 
         if self._dst or self._dst_begins_today or self._dst_ends_today:
-            self._log.info('DST info: %s %s %s',
+            self._log.debug('DST info: %s %s %s',
                                 'DST' if self._dst else '',
                                 'BEGINS-TODAY' if self._dst_begins_today else '',
                                 'ENDS-TODAY' if self._dst_ends_today else '',
@@ -729,7 +730,7 @@ class ES100:
         else:
             self._dst_special = None # invalid
 
-        self._log.info('Next DST transition YYYY:%02d:%02d @ %02d:00:00 %s',
+        self._log.debug('Next DST transition YYYY:%02d:%02d @ %02d:00:00 %s',
                             self._dst_next[0], self._dst_next[1], self._dst_next[2],
                             self._dst_special
                         )
