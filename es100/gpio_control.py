@@ -4,7 +4,6 @@ Copyright (C) 2023 Martin J Levy - W6LHI/G8LHI - @mahtin - https://github.com/ma
 """
 
 import sys
-import time
 
 DEVICE_LIBRARY_UNKNOWN = 0
 DEVICE_LIBRARY_GPIO = 1
@@ -49,7 +48,7 @@ class ES100GPIO:
     def __init__(self, en=None, irq=None, debug=False):
         """ """
         if DEVICE_LIBRARY == DEVICE_LIBRARY_UNKNOWN:
-            raise ES100GPIOError('RPi.GPIO or machine package not installed - are you on a Raspberry Pi?')
+            raise ES100GPIOError('import RPi.GPIO or machine failed - are you on a Raspberry Pi?')
         if en is None or irq is None:
             raise ES100GPIOError('GPIO must be defined - no default provided')
         self._gpio_en = en

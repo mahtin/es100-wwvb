@@ -37,7 +37,7 @@ class ES100I2C:
         """ __init__ """
         self._device = None
         if DEVICE_LIBRARY == DEVICE_LIBRARY_UNKNOWN:
-            raise ES100I2CError('SMBus or I2C package not installed - are you on a Raspberry Pi?')
+            raise ES100I2CError('import SMBus or I2C failed - are you on a Raspberry Pi?')
         self._debug = debug
         self._i2c_bus = bus
         self._i2c_address = address
