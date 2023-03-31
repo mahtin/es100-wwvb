@@ -521,7 +521,7 @@ class ES100:
             return
 
         # need to delay
-        remaining_seconds = 6 * 60 - ((time_now.minute % 10) * 60 + time_now.seconds)
+        remaining_seconds = 6 * 60 - ((time_now.minute % 10) * 60 + time_now.second)
 
         self._log.info('sleeping %d seconds till HH:16 or HH:46 point', remaining_seconds)
         # The suspension time may be longer than requested by an arbitrary amount, because
