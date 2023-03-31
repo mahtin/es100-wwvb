@@ -452,22 +452,30 @@ class ES100:
                             'START' if start else '-',
                     )
 
-    def _start_rx(self, tracking=False):
-        """ _start_rx """
+    def _start(self, tracking):
+        """ _start """
+        control0 = ES100.CONTROL0.START
         if not tracking:
             self._log.info('start rx via Antenna%d', self._antenna)
-            if self._antenna == 1:
-                self._write_control0(ES100.CONTROL0.START)
-            else:
-                self._write_control0(ES100.CONTROL0.START | ES100.CONTROL0.START_ANT)
+            if self._antenna == 2:
+                control0 |= ES100.CONTROL0.START_ANT
         else:
             self._log.info('start tracking via Antenna%d', self._antenna)
-            control0 = ES100.CONTROL0.START | ES100.CONTROL0.TRACKING_ENABLE
-            if self._antenna == 1:
-                control0 |= ES100.CONTROL0.ANT2_OFF
+            if self._antenna == 2:
+                control0 |= ES100.CONTROL0.TRACKING_ENABLE | ES100.CONTROL0.ANT1_OFF
             else:
-                control0 |= ES100.CONTROL0.ANT1_OFF
-            self._write_control0(control0)
+                control0 |= ES100.CONTROL0.TRACKING_ENABLE | ES100.CONTROL0.ANT2_OFF
+        self._write_control0(control0)
+
+    def _start_rx(self):
+        """ _start_rx """
+
+        # Every half-hour, for a duration of six minutes, the normal WWVB-PM 1-minute frames are
+        # replaced by the WWVBPM extended-mode time code sequences.
+        # The ES100 is not capable of receiving during these six-minute intervals that occur
+        # from HH:10 to HH:16 and HH:40 to HH:46 each hour (i.e. HH= 00, 01,…, 23).
+        self._wait_till_16_or_46_minutes()
+        self._start(tracking=False)
 
     def _start_tracking(self):
         """ _start_tracking """
@@ -479,12 +487,7 @@ class ES100:
         # (refer to the timing diagrams to see how this supports drift between +4s and -4s).
 
         self._wait_till_55seconds()
-        self._start_rx(tracking=True)
-
-    @classmethod
-    def _bcd(cls, val):
-        """ _bcd """
-        return (val & 0x0f) + ((val >> 4) & 0x0f) * 10
+        self._start(tracking=True)
 
     def _es100_device_id(self):
         """ _es100_device_id """
@@ -502,6 +505,30 @@ class ES100:
         self._log.info('device ID = 0x%02x (confirmed as ES100-MOD)', self._device_id)
         return True
 
+    def _wait_till_16_or_46_minutes(self):
+        """ _wait_till_16_or_46_minutes """
+
+        # Reception should not start between HH:10 to HH:16 and HH:40 to HH:46
+        # (we assume ntp is running - chicken-n-egg issue)
+
+        # however, this present logic is flawed; because we loop after an unsuccessful reception
+        # somewhere else in the code and simple timeout a reception there.
+        # this will only be hit if we do a successful reception first.
+
+        time_now = datetime.utcnow()
+        if not (10 <= time_now.minute < 16 or 40 <= time_now.minute < 46):
+            # all good!
+            return
+
+        # need to delay
+        remaining_seconds = 6 * 60 - ((time_now.minute % 10) * 60 + time_now.seconds)
+
+        self._log.info('sleeping %d seconds till HH:16 or HH:46 point', remaining_seconds)
+        # The suspension time may be longer than requested by an arbitrary amount, because
+        # of the scheduling of other activity in the system.
+        # We ignore this fact presently
+        time.sleep(remaining_seconds)
+
     def _wait_till_55seconds(self):
         """ _wait_till_55seconds """
 
@@ -518,7 +545,7 @@ class ES100:
         # We ignore this fact presently
         time.sleep(remaining_seconds)
 
-    def _es100_receive(self, tracking=False):
+    def _es100_receive(self, tracking=False, do_cycles=False):
         """ _es100_receive """
 
         # start reception
@@ -527,6 +554,12 @@ class ES100:
         else:
             self._start_tracking()
 
+        # the host microcontroller initiates the reception attempt by writing to the CONTROL 0
+        # register to set the START bit high. This will cause the ES100 to begin signal reception
+        # and processing. After receiving and processing the signal, the ES100 will generate a
+        # falling edge on the IRQ- output pin. The host microcontroller then reads the IRQ Status
+        # register to determine what caused the interrupt.
+
         # perform read of control0 register
         self._read_and_report_control0_reg()
 
@@ -534,6 +567,17 @@ class ES100:
         while True:
             self._read_and_report_status0_and_irq_reg()
 
+            # When the IRQ STATUS register is read with the CYCLE_COMPLETE bit set high,
+            # indicating an unsuccessful reception attempt, the ES100 automatically drives
+            # the IRQ- pin back high and attempts another reception.
+            if do_cycles and self._cycle_complete:
+                # we have completed a cycle - caller wants us to return
+                # but reception is still happening - needs fixing. - TODO
+                return
+
+            # If the RX_COMPLETE bit is set, as in the second attempt in this example,
+            # the Status, Date, Time, and Next DST registers are all valid and can be
+            # read by the host.
             if self._rx_complete:
                 # we have info - let's  go do stuff!
                 return
@@ -551,7 +595,12 @@ class ES100:
         # yippe - we exited the loop because RX_COMPLETE is set
         # hence there should be a reception/tracking info
 
-    def time(self, antenna=None, tracking=False):
+    @classmethod
+    def _bcd(cls, val):
+        """ _bcd """
+        return (val & 0x0f) + ((val >> 4) & 0x0f) * 10
+
+    def time(self, antenna=None, tracking=False, do_cycles=False):
         """ time()
 
         :param antenna: Select antenna (None, 1, or 2)
@@ -576,7 +625,7 @@ class ES100:
 
         try:
             # receive time from WWVB
-            self._es100_receive(tracking)
+            self._es100_receive(tracking, do_cycles)
         except ES100Error as err:
             self._log.warning('read/receive failed: %s', err)
             return None
