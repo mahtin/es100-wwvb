@@ -93,7 +93,8 @@ def wwvb_lite():
     try:
         doit(antenna=antenna_choice, irq=es100_irq, en=es100_en, bus=i2c_bus, address=i2c_address, verbose=flag_verbose, debug=flag_debug)
     except KeyboardInterrupt:
-        sys.exit('^C')
+        print('^C')
+        sys.exit(0)
 
 class SimpleOLED:
     """ SimpleOLED
@@ -113,7 +114,7 @@ class SimpleOLED:
             return
         dt = datetime.utcnow().replace(tzinfo=timezone.utc)
         SimpleOLED._d.datetime(dt)
-        percent = ((utime.ticks_ms() - SimpleOLED._ms_start)/((134+10)*1000.0) % 1.0
+        percent = ((utime.ticks_ms() - SimpleOLED._ms_start)/((134+10)*1000.0)) % 1.0
         SimpleOLED._d.progress_bar(percent, 0, 16)
 
     def __init__(self):
@@ -189,7 +190,7 @@ def doit(antenna, irq, en, bus, address, verbose=False, debug=False):
     while True:
         d.reset_timer()
 
-        dt = es.time()
+        dt = es.time(tracking=False, do_cycles=False)
         if dt:
             print('WWVB:',dt, es.system_time(), es.rx_antenna(), es.delta_seconds())
 
