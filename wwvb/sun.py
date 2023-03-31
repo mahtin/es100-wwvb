@@ -9,8 +9,6 @@ import datetime
 from math import degrees
 from zoneinfo import ZoneInfo
 
-utc_tz = ZoneInfo('UTC')
-
 import ephem
 
 class Sun:
@@ -91,7 +89,7 @@ class Sun:
         else:
             self._viewer.date = datetime.datetime.utcnow()
         if tz == 'UTC':
-            tz = utc_tz
+            tz = ZoneInfo('UTC')
         else:
             tz = ZoneInfo(tz)
         # always (re)compute as time tends to march-on.
