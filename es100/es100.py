@@ -143,14 +143,18 @@ class ES100:
                 raise ES100Error('antenna number incorrect: "%s"' % (antenna))
             if antenna not in [1, 2]:
                 raise ES100Error('antenna number incorrect: %d' % (antenna))
+            self._antenna = antenna
+            self._antenna_locked = True
         elif isinstance(antenna, int):
             # antenna defined via int value
             if antenna not in [1, 2]:
                 raise ES100Error('antenna number incorrect: %d' % (antenna))
             self._antenna = antenna
+            self._antenna_locked = True
         else:
             # we choose for the user
             self._antenna = random.choice([1, 2])
+            self._antenna_locked = False
 
         self._log = logging.getLogger(__class__.__name__)
         self._debug = debug
@@ -347,7 +351,7 @@ class ES100:
             # allow by name references
             try:
                 addr = getattr(ES100.REGISTERS, addr)
-            except AttributeError:
+            except AttributeError as err:
                 self._log.error('_read_register: %s: invalid name', addr)
                 raise ES100Error('i2c read: %s' % (err)) from err
 
@@ -402,8 +406,8 @@ class ES100:
         """ _write_control0 """
         self._write_register(int(ES100.REGISTERS.CONTROL0), val)
 
-    def _read_and_report_status0_and_irq_reg(self):
-        """ _read_and_report_status0_and_irq_reg """
+    def _read_and_report_irq_and_status0_reg(self):
+        """ _read_and_report_irq_and_status0_reg """
         self._irq_status = self._get_irq_status()
         self._cycle_complete = bool(self._irq_status & ES100.IRQSTATUS.CYCLE_COMPLETE)
         self._rx_complete = bool(self._irq_status & ES100.IRQSTATUS.RX_COMPLETE)
@@ -520,10 +524,11 @@ class ES100:
             # all good!
             return
 
-        # need to delay
+        # need to delay - we only use the lower digit of the minute
+        # we caculate remaining seconds till HH:16:00 or HH:46:00
         remaining_seconds = 6 * 60 - ((time_now.minute % 10) * 60 + time_now.second)
 
-        self._log.info('sleeping %d seconds till HH:16 or HH:46 point', remaining_seconds)
+        self._log.info('sleeping %d seconds till %02d:%1d6:00', remaining_seconds, time_now.hour, int(time_now.minute / 10))
         # The suspension time may be longer than requested by an arbitrary amount, because
         # of the scheduling of other activity in the system.
         # We ignore this fact presently
@@ -539,7 +544,7 @@ class ES100:
         remaining_seconds = 55.0 - (time_now.second + time_now.microsecond/1000000.0)
         if remaining_seconds < 0.0:
             remaining_seconds += 60.0
-        self._log.debug('sleeping %.1f seconds till :55 point', remaining_seconds)
+        self._log.debug('sleeping %.1f seconds till HH:MM:55', remaining_seconds)
         # The suspension time may be longer than requested by an arbitrary amount, because
         # of the scheduling of other activity in the system.
         # We ignore this fact presently
@@ -565,7 +570,7 @@ class ES100:
 
         # loop until time received
         while True:
-            self._read_and_report_status0_and_irq_reg()
+            self._read_and_report_irq_and_status0_reg()
 
             # When the IRQ STATUS register is read with the CYCLE_COMPLETE bit set high,
             # indicating an unsuccessful reception attempt, the ES100 automatically drives
@@ -619,7 +624,9 @@ class ES100:
             if antenna not in [1, 2]:
                 raise ES100Error('antenna number incorrect: %d' % (antenna))
             self._antenna = antenna
-        else:
+            self._antenna_locked = True
+
+        if not self._antenna_locked:
             # swap 2 -> 1 and 1 -> 2
             self._antenna = 2 if self._antenna == 1 else 1
 
