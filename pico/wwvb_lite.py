@@ -93,7 +93,7 @@ def wwvb_lite():
     try:
         doit(antenna=antenna_choice, irq=es100_irq, en=es100_en, bus=i2c_bus, address=i2c_address, verbose=flag_verbose, debug=flag_debug)
     except KeyboardInterrupt:
-        print('^C')
+        print('^C - exiting!')
         sys.exit(0)
 
 class SimpleOLED:
@@ -190,7 +190,7 @@ def doit(antenna, irq, en, bus, address, verbose=False, debug=False):
     while True:
         d.reset_timer()
 
-        dt = es.time(tracking=False, do_cycles=False)
+        dt = es.time(tracking=False)
         if dt:
             print('WWVB:',dt, es.system_time(), es.rx_antenna(), es.delta_seconds())
 
