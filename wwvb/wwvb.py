@@ -264,12 +264,12 @@ def doit(program_name, args):
         sys_received_dt = es100.system_time()
         if received_dt.year == 1 and received_dt.month == 1 and received_dt.day == 1:
             # tracking result with only seconnd and microsecond being accurate
-            log.info('Time received (seconds only): %02d.%03d at %s',
+            log.info('Time received (seconds only): HH:MM:%02d.%03d at %s',
                         received_dt.second,
                         int(received_dt.microsecond / 1000),
                         sys_received_dt
                     )
-            print('WWVB: (tracking) %02d.%03d at %s' % (
+            print('WWVB: (tracking) HH:MM:%02d.%03d at %s' % (
                         received_dt.second,
                         int(received_dt.microsecond / 1000),
                         sys_received_dt
