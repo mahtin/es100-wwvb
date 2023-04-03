@@ -659,7 +659,7 @@ class ES100:
                 self._recv_time[reg] = self._read_register(reg)
 
             seconds = ES100._bcd(self._recv_time['SECOND'] & 0x7f)
-            self._log.info('tracking operation successful, %02d at system time %02d.%03d, %s',
+            self._log.info('tracking operation successful, HH:MM:%02d at system time %02d.%03d, %s',
                                 seconds,
                                 self._system_time_received.second,
                                 int(self._system_time_received.microsecond / 1000),
