@@ -28,13 +28,14 @@ def wwvb_lite():
     #                       I I
     #                       2 2
     #                       C C
-    #                       0 0
+    #                       1 1
+    #                       - -
     #                       S S
-    #                       C C
-    #                       L K
+    #                       C D
+    #                       L A
     #   * * * * * * * * * * * * * * * * * * * *
     #   *                                     *
-    #   *                                     * USB
+    #   *    Raspberry Pi Pico (or Pico W)    * USB
     #   *                                     *
     #   * * * * * * * * * * * * * * * * * * * *
     #   G G                           3   G
@@ -43,7 +44,7 @@ def wwvb_lite():
     #   6 7                           V
 
     i2c_bus = 1
-    i2c_address = 0x32  # 50
+    i2c_address = 0x32  # 50 decimal == 0x32 hex
     flag_debug = False
     flag_verbose = False
     es100_irq = 16
