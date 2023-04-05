@@ -7,7 +7,11 @@ Copyright (C) 2023 Martin J Levy - W6LHI/G8LHI - @mahtin - https://github.com/ma
 
 import datetime
 from math import degrees
-from zoneinfo import ZoneInfo
+
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    ZoneInfo = None
 
 import ephem
 
@@ -88,6 +92,9 @@ class Sun:
             self._viewer.date = dtime
         else:
             self._viewer.date = datetime.datetime.utcnow()
+        if not ZoneInfo:
+            # zoneinfo is new in Python version 3.9.
+            raise ImportError('ZoneInfo is in Python 3.9 or above; please upgrade your Python')
         if tz == 'UTC':
             tz = ZoneInfo('UTC')
         else:
