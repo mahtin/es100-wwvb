@@ -418,6 +418,7 @@ class ES100:
                                 'CYCLE_COMPLETE' if self._cycle_complete else '-',
                                 'RX_COMPLETE' if self._rx_complete else '-',
                         )
+            # don't bother with status0 because it's not valid yet
             return
 
         # status0 should now contain information
@@ -450,7 +451,7 @@ class ES100:
         self._log.info('control0 = 0x%02x <...,%s,%s,%s,%s,%s>',
                             self._control0,
                             'TRACKING_ENABLE' if tracking_enabled else '-',
-                            'Antenna' + str(start_ant),
+                            'Antenna' + str(start_ant) if not tracking_enabled else '-',
                             'ANT2_OFF' if ant2_off else '-',
                             'ANT1_OFF' if ant1_off else '-',
                             'START' if start else '-',
@@ -458,17 +459,27 @@ class ES100:
 
     def _start(self, tracking):
         """ _start """
-        control0 = ES100.CONTROL0.START
         if not tracking:
-            self._log.info('start rx via Antenna%d', self._antenna)
-            if self._antenna == 2:
-                control0 |= ES100.CONTROL0.START_ANT
-        else:
-            self._log.info('start tracking via Antenna%d', self._antenna)
-            if self._antenna == 2:
-                control0 |= ES100.CONTROL0.TRACKING_ENABLE | ES100.CONTROL0.ANT1_OFF
+            control0 = ES100.CONTROL0.START
+            if self._antenna_locked:
+                self._log.info('start rx via Antenna%d and locked', self._antenna)
+                if self._antenna == 1:
+                    control0 |= ES100.CONTROL0.ANT2_OFF
+                else:
+                    control0 |= ES100.CONTROL0.ANT1_OFF
             else:
-                control0 |= ES100.CONTROL0.TRACKING_ENABLE | ES100.CONTROL0.ANT2_OFF
+                self._log.info('start rx via Antenna%d', self._antenna)
+                if self._antenna == 1:
+                    pass # just start bit
+                else:
+                    control0 |= ES100.CONTROL0.START_ANT
+        else:
+            control0 = ES100.CONTROL0.TRACKING_ENABLE | ES100.CONTROL0.START
+            self._log.info('start tracking via Antenna%d', self._antenna)
+            if self._antenna == 1:
+                control0 |= ES100.CONTROL0.ANT2_OFF
+            else:
+                control0 |= ES100.CONTROL0.ANT1_OFF
         self._write_control0(control0)
 
     def _start_rx(self):
@@ -575,9 +586,11 @@ class ES100:
             # When the IRQ STATUS register is read with the CYCLE_COMPLETE bit set high,
             # indicating an unsuccessful reception attempt, the ES100 automatically drives
             # the IRQ- pin back high and attempts another reception.
+
             if do_cycles and self._cycle_complete:
                 # we have completed a cycle - caller wants us to return
-                # but reception is still happening - needs fixing. - TODO
+                # but reception is still happening - maybe we should stop receiver?
+                # needs fixing. Don't get do_cycles quite yet - TODO
                 return
 
             # If the RX_COMPLETE bit is set, as in the second attempt in this example,
