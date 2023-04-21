@@ -52,8 +52,8 @@ def wwvb_lite():
     # our_location_name = ''
     # our_location = MY_LOCATION[:2]
     # our_masl = MY_LOCATION[2]
-    # flag_enable_nighttime = False
-    # flag_force_tracking = False
+    flag_enable_nighttime = False
+    flag_force_tracking = False
     antenna_choice = None
 
     try:
@@ -79,10 +79,10 @@ def wwvb_lite():
         es100_irq = config['wwvb.irq']
     if 'wwvb.en' in config:
         es100_en = config['wwvb.en']
-    # if 'wwvb.nighttime' in config:
-    #     flag_enable_nighttime = config['wwvb.nighttime']
-    # if 'wwvb.tracking' in config:
-    #     flag_enable_nighttime = config['wwvb.tracking']
+    if 'wwvb.nighttime' in config:
+        flag_enable_nighttime = config['wwvb.nighttime']
+    if 'wwvb.tracking' in config:
+        flag_enable_tracking = config['wwvb.tracking']
     if 'debug.debug' in config:
         flag_debug = config['debug.debug']
     if 'debug.verbose' in config:
@@ -92,7 +92,7 @@ def wwvb_lite():
     logging.basicConfig(level=logging.WARNING)
 
     try:
-        doit(antenna=antenna_choice, irq=es100_irq, en=es100_en, bus=i2c_bus, address=i2c_address, verbose=flag_verbose, debug=flag_debug)
+        doit(antenna=antenna_choice, tracking=flag_enable_tracking, irq=es100_irq, en=es100_en, bus=i2c_bus, address=i2c_address, verbose=flag_verbose, debug=flag_debug)
     except KeyboardInterrupt:
         print('^C - exiting!')
         sys.exit(0)
@@ -150,9 +150,12 @@ class SimpleOLED:
     def update(self, ant, delta, dst, leap):
         """ update() """
         self._d.text('Ant:   %s' % (ant), 0, 24)
-        self._d.text('Delta: %5.3f' % (delta), 0, 32)
-        self._d.text('DST:   %s' % (dst), 0, 40)
-        self._d.text('Leap:  %s' % (leap), 0, 48)
+        if delta:
+            self._d.text('Delta: %5.3f' % (delta), 0, 32)
+        if dst:
+            self._d.text('DST:   %s' % (dst), 0, 40)
+        if leap:
+            self._d.text('Leap:  %s' % (leap), 0, 48)
 
     def update_counts(self, successes, loops):
         """ update_counts() """
@@ -162,8 +165,10 @@ class SimpleOLED:
         """ reset_timer() """
         SimpleOLED._ms_start = utime.ticks_ms()
 
-def doit(antenna, irq, en, bus, address, verbose=False, debug=False):
+def doit(antenna, tracking, irq, en, bus, address, verbose=False, debug=False):
     """ doit()
+    :param antenna: Antenna number (1 or 2)
+    :param tracking: Enable tracking
     :param en: Enable pin number
     :param irq: IRQ pin number
     :param bus: I2C bus number
@@ -191,15 +196,21 @@ def doit(antenna, irq, en, bus, address, verbose=False, debug=False):
     while True:
         d.reset_timer()
 
-        dt = es.time(tracking=False)
-        if dt:
-            print('WWVB:',dt, es.system_time(), es.rx_antenna(), es.delta_seconds())
+        received_dt = es.time(tracking=tracking)
+        if received_dt:
+            # if received_dt.year == 1 and received_dt.month == 1 and received_dt.day == 1:
+            if tracking:
+                print('WWVB: (tracking) HH:MM:%02d.%03d' % (received_dt.second, int(received_dt.microsecond / 1000)))
+                count_successes += 1
+                d.update(es.rx_antenna(), None, None, None)
+            else:
+                print('WWVB: %s at %s via %s with delta %0.3f' % (received_dt, es.system_time(), es.rx_antenna(), es.delta_seconds()))
 
-            # set system time
-            datetime.setrtc(dt)
+                # set system time
+                datetime.setrtc(received_dt)
 
-            count_successes += 1
-            d.update(es.rx_antenna(), es.delta_seconds(), es.is_presently_dst(), es.leap_second())
+                count_successes += 1
+                d.update(es.rx_antenna(), es.delta_seconds(), es.is_presently_dst(), es.leap_second())
 
         count_loops += 1
         d.update_counts(count_successes, count_loops)
