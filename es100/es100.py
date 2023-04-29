@@ -451,7 +451,7 @@ class ES100:
         self._log.info('control0 = 0x%02x <...,%s,%s,%s,%s,%s>',
                             self._control0,
                             'TRACKING_ENABLE' if tracking_enabled else '-',
-                            'Antenna' + str(start_ant) if not tracking_enabled else '-',
+                            'Antenna' + str(start_ant) if not tracking_enabled or ant1_off or ant2_off else '-',
                             'ANT2_OFF' if ant2_off else '-',
                             'ANT1_OFF' if ant1_off else '-',
                             'START' if start else '-',
