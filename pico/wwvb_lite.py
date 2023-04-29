@@ -23,7 +23,7 @@ def wwvb_lite():
 
     # Raspberry Pi Pico wiring diagram.
     # I2C bus 1 is on physical pins 9 & 10 (called GP6 & GP7)
-    # GPIO for IRQ and Enable are physical pins 21 & 22 (called GP16 * GP17)
+    # GPIO for IRQ and Enable are physical pins 27 & 29 (called GP21 * GP22)
     #
     #                       I I
     #                       2 2
@@ -38,17 +38,17 @@ def wwvb_lite():
     #   *    Raspberry Pi Pico (or Pico W)    * USB
     #   *                                     *
     #   * * * * * * * * * * * * * * * * * * * *
-    #   G G                           3   G
-    #   P P                           .   N
-    #   1 1                           3   D
-    #   6 7                           V
+    #             G   G               3   G
+    #             P   P               .   N
+    #             2   2               3   D
+    #             1   2               V
 
     i2c_bus = 1
     i2c_address = 0x32  # 50 decimal == 0x32 hex
     flag_debug = False
     flag_verbose = False
-    es100_irq = 16
-    es100_en = 17
+    es100_irq = 27
+    es100_en = 29
     # our_location_name = ''
     # our_location = MY_LOCATION[:2]
     # our_masl = MY_LOCATION[2]
