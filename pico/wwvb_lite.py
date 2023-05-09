@@ -60,16 +60,18 @@ def wwvb_lite():
         with open('pico/config.json', 'r', encoding="utf-8") as fd:
             config = json.load(fd)
         print('config.json: loaded')
-    except:
+    except OSError:
         config = {}
 
     if 'wwvb.station' in config:
-        station = config['wwvb.station']
-        # our_location_name = config[station + '.' + 'name']
-        # our_location = config[station + '.' + 'location']
-        # our_location = convert_location(our_location)
-        # our_masl = config[station + '.' + 'masl']
-        antenna_choice = config[station + '.' + 'antenna']
+        try:
+            station = config['wwvb.station']
+            # our_location_name = config[station]['name']
+            # our_location = convert_location(config[station]['location'])
+            # our_masl = config[station]['masl']
+            antenna_choice = config[station]['antenna']
+        except KeyError:
+            print('%s: station not found - continuing')
 
     if 'wwvb.bus' in config:
         i2c_bus = config['wwvb.bus']
