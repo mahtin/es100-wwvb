@@ -137,11 +137,12 @@ I2C bus 1 is on GP6 and GP7 (physical pins 9 & 10)
 
 ### Wiring on any host with an Microchip MCP2221 USB to I2C/GPIO board
 _(THIS IS WORK IN PROGRESS - IT ALL WORKS ONCE THIS STATEMENT IS REMOVED)_
+
 This is based on the [Adafruit MCP2221A breakout board](https://www.adafruit.com/product/4471).
-![](https://github.com/mahtin/es100-wwvb/raw/main/images/images/adafruit-mcp2221a-board.jpg)
+![](https://github.com/mahtin/es100-wwvb/raw/main/images/adafruit-mcp2221a-board.jpg)
 It's recommended that IRQ goes to GP1 and EN goes to GP0.
 Here's a breakout board with the MCP2221A and the ES100.
-![](https://github.com/mahtin/es100-wwvb/raw/main/images/images/breakout-board-with-mcp2221-and-es100.jpg)
+![](https://github.com/mahtin/es100-wwvb/raw/main/images/breakout-board-with-mcp2221-and-es100.jpg)
 
 ## Radio Station WWVB
 
