@@ -127,7 +127,9 @@ The ES100 connections are:
 
 ### Wiring on Raspberry Pi
 It's recommended that IRQ goes to GPIO-17 (physical pin 11) and EN goes to GPIO-4 (physical pin 7).
+
 ![](https://github.com/mahtin/es100-wwvb/raw/main/images/raspberry-pi-es100-wiring-diagram.png)
+
 This can be changed via command line arguments.
 
 ### Wiring on Raspberry Pi Pico W
@@ -135,13 +137,18 @@ It's recommended that IRQ goes to GP21 (physical pin 27) and EN goes to GP22 (ph
 This can be changed via command line arguments.
 I2C bus 1 is on GP6 and GP7 (physical pins 9 & 10)
 
+See the Pico section below for more information
+
 ### Wiring on any host with an Microchip MCP2221 USB to I2C/GPIO board
 _(THIS IS WORK IN PROGRESS - IT ALL WORKS ONCE THIS STATEMENT IS REMOVED)_
 
 This is based on the [Adafruit MCP2221A breakout board](https://www.adafruit.com/product/4471).
+
 ![](https://github.com/mahtin/es100-wwvb/raw/main/images/adafruit-mcp2221a-board.jpg)
-It's recommended that IRQ goes to GP1 and EN goes to GP0.
+
+It's recommended that IRQ goes to G1 and EN goes to G0.
 Here's a breakout board with the MCP2221A and the ES100.
+
 ![](https://github.com/mahtin/es100-wwvb/raw/main/images/breakout-board-with-mcp2221-and-es100.jpg)
 
 ## Radio Station WWVB
