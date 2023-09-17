@@ -125,9 +125,23 @@ The ES100 connections are:
 * ES100 Pin 5 == EN Enable
 * ES100 Pin 6 == GND
 
+### Wiring on Raspberry Pi
+It's recommended that IRQ goes to GPIO-17 (physical pin 11) and EN goes to GPIO-4 (physical pin 7).
 ![](https://github.com/mahtin/es100-wwvb/raw/main/images/raspberry-pi-es100-wiring-diagram.png)
+This can be changed via command line arguments.
 
-It's recommended that IRQ goes to GPIO-17 (pin 11) and EN goes to GPIO-4 (pin 7). This can be changed via command line arguments.
+### Wiring on Raspberry Pi Pico W
+It's recommended that IRQ goes to GP21 (physical pin 27) and EN goes to GP22 (physical pin 29).
+This can be changed via command line arguments.
+I2C bus 1 is on GP6 and GP7 (physical pins 9 & 10)
+
+### Wiring on any host with an Microchip MCP2221 USB to I2C/GPIO board
+_(THIS IS WORK IN PROGRESS - IT ALL WORKS ONCE THIS STATEMENT IS REMOVED)_
+This is based on the [Adafruit MCP2221A breakout board](https://www.adafruit.com/product/4471).
+![](https://github.com/mahtin/es100-wwvb/raw/main/images/images/adafruit-mcp2221a-board.jpg)
+It's recommended that IRQ goes to GP1 and EN goes to GP0.
+Here's a breakout board with the MCP2221A and the ES100.
+![](https://github.com/mahtin/es100-wwvb/raw/main/images/images/breakout-board-with-mcp2221-and-es100.jpg)
 
 ## Radio Station WWVB
 
@@ -231,8 +245,7 @@ There are various command options. This example shows how a location (as in Lat/
 Full usage of the command line tool can be found with the `--help` option:
 ```bash
     $ wwvb --help
-    usage: wwvb [-V|--version] [-h|--help] [-v|--verbose] [-d|--debug] [-b|--bus={0-1}] [-a|--address={8-127}] [-i|--irq={1-40}] [-e|--en={1-40}] [-l|--location=lat,long] [-m|--masl={0-99999}] [-n|--nighttime] [-t|--tracking] [-A|--antenna={0-1}] [-N|--ntpd={0-255}]
-
+    usage: wwvb [-V|--version] [-h|--help] [-v|--verbose] [-d|--debug] [-b|--bus={0-N}] [-a|--address={8-127}] [-i|--irq={1-40}] [-e|--en={1-40}] [-l|--location=lat,long] [-m|--masl={0-99999}] [-n|--nighttime] [-t|--tracking] [-A|--antenna={0-1}] [-N|--ntpd={0-255}] [-M|--mcp2221={0-1}]
     $
 ```
 
@@ -276,6 +289,8 @@ $ cat wwvb.ini
     # GPIO pins
     irq = 11
     en = 7
+    # MCP2221/MCP2221A usage for GPIO & I2C
+    mcp2221 = False
     # flags,, as needed
     nighttime = False
     tracking = False
