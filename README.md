@@ -151,6 +151,14 @@ Here's a breakout board with the MCP2221A and the ES100.
 
 ![](https://github.com/mahtin/es100-wwvb/raw/main/images/breakout-board-with-mcp2221-and-es100.jpg)
 
+Note that MCP2221A does not have internally controlable pulldown resistors and hence one is needed for the IRQ input. A wide range of values can be used.
+
+![](https://github.com/mahtin/es100-wwvb/raw/main/images/circuit-diagram-mcp2221-and-es100.png)
+
+The breakout board above also has two LEDs on GPIO ports G3 & G4 for fun reasons. This is not shown on the circuit diagram.
+
+See the MCP2221 section below for more information.
+
 ## Radio Station WWVB
 
 [WWVB](https://www.nist.gov/pml/time-and-frequency-division/time-distribution/radio-station-wwvb) is located in Ft Collins Colorado USA and is operated by [NIST](https://www.nist.gob/).
@@ -407,6 +415,39 @@ Refer to the `oled_display.py` file for more information.
 The display will update the screen once a WWVB signal has been received.
 
 This software port will be expanded upon over time.
+
+## Any machine with an Adafruit MCP2221A
+
+The Linux release provides support for the MCP2221A via a driver module `hid-mcp2221a`. Load that module and you have access to the GPIO pins.
+Additionally, the command line and python libraries should be loaded.
+
+```bash
+$ sudo apt-get install gpiod python3-libgpiod
+...
+$
+```
+
+The board (assuming it's plugged in and the Linux driver is found) should show up like this:
+
+```bash
+$ gpioinfo gpiochip2
+gpiochip2 - 4 lines:
+	line   0:        "GP0"       unused  output  active-high
+	line   1:        "GP1"       unused   input  active-high
+	line   2:        "GP2"       unused  output  active-high
+	line   3:        "GP3"       unused  output  active-high
+$
+```
+
+Placing the GPIO pins in the right direction is a simple set of commands:
+
+```bash
+$ gpioset gpiochip2 0=0 && gpioget gpiochip2 1
+1
+$
+```
+
+Alternately, (for example on a Mac), CircuitPython provides support for the MCP2221A's i2c port and the GPIO pins. Follow Adafruit's information for installing that.
 
 ## Other ES100 projects found
 
