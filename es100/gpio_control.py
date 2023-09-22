@@ -68,14 +68,15 @@ class ES100GPIO:
 
     def __del__(self):
         """ __del__ """
-        if not GPIO:
-            return
         self._close()
 
     def _close(self):
         """ _close """
         self.en_low()
-        GPIO.cleanup()
+        if DEVICE_LIBRARY == DEVICE_LIBRARY_GPIO:
+            GPIO.cleanup()
+        if DEVICE_LIBRARY == DEVICE_LIBRARY_PIN:
+            pass
 
     def en_low(self):
         """ en_low()
