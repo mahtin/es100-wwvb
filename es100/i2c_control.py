@@ -81,7 +81,7 @@ class ES100I2C:
                 pass
             self._device = None
 
-    def read(self):
+    def read(self, addr=0):
         """ read """
         count = 0
         while True:
