@@ -275,7 +275,11 @@ The `--location` is required as the program needs to know its accurate location 
   --location 37.4,-121.9
   --location 37.363056,-121.928611
   --location 37.363056N,121.928611W
+  --location CM97ai
 ```
+
+A location can also be provided using the four or six character Ham Radio [Maidenhead Locator System](https://en.wikipedia.org/wiki/Maidenhead_Locator_System) for example, **CM97ai**.
+
 If a location is not provided; then it defaults to my local airport: **SJC** (San José Mineta International Airport). This is possibly incorrect.
 
 The `--nighttime` option enables the tracking vs reception mode logic for daytime/nighttime reception.

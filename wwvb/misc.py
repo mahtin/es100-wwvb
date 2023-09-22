@@ -8,6 +8,7 @@ Copyright (C) 2023 Martin J Levy - W6LHI/G8LHI - @mahtin - https://github.com/ma
 from math import degrees, radians, sin, cos, acos, atan2
 
 from .sun import Sun
+from .maidenhead import maidenhead
 
 WWVB_FT_COLLINS = [40.6777225, -105.047153, 1585]  # latitude, longitude, and MASL
 
@@ -16,6 +17,13 @@ RADIOWAVE_SPEED = 299250.0              # km / sec
 def convert_location(lat_lon):
     """ convert_location """
 
+    if isinstance(lat_lon, str):
+        try:
+            # could it be a Ham Radio Maidenhead Locator?
+            return maidenhead(lat_lon)
+        except ValueError:
+            # nope, but it was worth a try!
+            pass
     if isinstance(lat_lon, list):
         lat = lat_lon[0]
         lon = lat_lon[1]
