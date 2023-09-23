@@ -41,8 +41,8 @@ class ES100I2C:
         self._debug = debug
         self._i2c_bus = bus
         self._i2c_address = address
-        if not 0 <= self._i2c_bus <= 1:
-            raise ES100I2CError('i2c bus number error: %s' % bus)
+        #if not 0 <= self._i2c_bus <= 1:
+        #    raise ES100I2CError('i2c bus number error: %s' % bus)
         if not 0x08 <= self._i2c_address <= 0x77:
             raise ES100I2CError('i2c address number error: %s' % address)
         self.open()
