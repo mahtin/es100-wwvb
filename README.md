@@ -468,6 +468,10 @@ Keith Greiner April 2019 - How to Receive 60 KHz Time Signals with Arduino Due a
 * https://sites.google.com/site/wwvbreceiverwitharduino/home?authuser=0
 * https://sites.google.com/site/wwvbreceiverwitharduino/home/es100_starter_code_with_amendments?authuser=0
 
+## Changelog
+
+An automatically generated CHANGELOG is provided [here](CHANGELOG.md).
+
 ## Author & Copyright
-Copyright (C) 2023 Martin J Levy - W6LHI/G8LHI - @mahtin - https://github.com/mahtin
+Copyright (C) 2023-2024 Martin J Levy - W6LHI/G8LHI - @mahtin - https://github.com/mahtin
 

@@ -1,0 +1,59 @@
+# Change Log
+
+ - 2024-08-18 11:55:39 -0700 [eadba7e](../../commit/eadba7e60f42075885510544605b252c8ced3731) Support for Adafruit Blinka Library - kinda still messy
+ - 2023-09-23 13:25:56 -0700 [006b410](../../commit/006b4105f7679dd066e5a6b3a0046169610819a5) remove check on bus number - needed for non Rpi boxes
+ - 2023-09-22 16:40:51 -0700 [d398cba](../../commit/d398cbaa9bd7c8e6ea19f8b01e5c8f0f6f31f7db) __del__ and close were not handling library types - they do now
+ - 2023-09-22 16:38:36 -0700 [ebba244](../../commit/ebba2444073217c47b13ac5af8f08fe5780e6f14) read() could take an addr value - not used presently
+ - 2023-09-22 15:58:50 -0700 [f4aa9a3](../../commit/f4aa9a376e5906a56b96b30415acd38981f5713e) added Maidenhead Locator System as a choice of specifing location - to keep the ham folks happy
+ - 2023-09-17 17:13:03 -0700 [eae4b35](../../commit/eae4b35e2b3ebdacf59d29c0e447c2f9a89c0218) First pass at MCP2221 support
+ - 2023-09-17 14:07:48 -0700 [d3fe08e](../../commit/d3fe08e227746ef765c48008471cc8745a5915f4) First pass at MCP2221 support
+ - 2023-09-17 14:03:59 -0700 [5868e37](../../commit/5868e377fb3edee81f2553c85bf8c8008e325257) First pass at MCP2221 support
+ - 2023-09-17 14:01:00 -0700 [9d48df3](../../commit/9d48df31ef00bf195fcf5ff143dcee1591d4f097) First pass at MCP2221 support
+ - 2023-05-08 17:04:14 -0700 [b50e911](../../commit/b50e911aa66d4ce31b31cb1e8aa194e8a6a54b67) changed json structure, added start of wifi config
+ - 2023-04-29 17:21:55 +0100 [5bb3b67](../../commit/5bb3b6746625702606a418b662dcf2097e0d3819) first pass with new pc board and its four leds
+ - 2023-04-29 17:17:58 +0100 [14b77f8](../../commit/14b77f8307732fc07c6253e1d8aa4012a2d78f12) cleanup of control0 debug prints
+ - 2023-04-29 17:14:55 +0100 [16c8fb2](../../commit/16c8fb283b7e7d7d1c89d0be68b73ad88c518a11) moved IRQ/EN pins to new defaults to match new pc board design
+ - 2023-04-20 19:32:28 -0700 [8a988de](../../commit/8a988de4b114291a39719778403f10d422332a6c) better start processing, fix debug of control0
+ - 2023-04-20 19:31:16 -0700 [56312ea](../../commit/56312ea8f99f1a0e0e3ea3d1b32abeffe7a664a7) better prints, tracking support added
+ - 2023-04-05 15:03:45 -0700 [90167c3](../../commit/90167c318f14001a80156db5a673bf2acdd2a90d) handle <3.9 Python
+ - 2023-04-03 14:14:37 -0700 [aee0e54](../../commit/aee0e547d8baa3a4160287f7f2c51cbdcb0a81a4) HH:MM: added to tracking messages
+ - 2023-04-03 14:14:25 -0700 [9c9fe24](../../commit/9c9fe24818463fbcfaf1d226f906359eff01aa2b) cleaned up docs on pins
+ - 2023-04-03 14:13:53 -0700 [908d319](../../commit/908d3194659ee5eb585d99d7f376220b77f97357) HH:MM: added to tracking messages
+ - 2023-04-01 15:19:23 -0700 [ac0af1b](../../commit/ac0af1b72d5edc3ec1e8dfb89898c074b66ac7aa) added and corrected antenna_locked logic, updated sleep info, irq/status0 reporting name fixed
+ - 2023-04-01 15:17:32 -0700 [98294cd](../../commit/98294cd6517f59a804098d6fcad846df16368d3e) remove do_cycle for now
+ - 2023-03-31 10:46:11 -0700 [36d82eb](../../commit/36d82ebe635125da9e8aea2b6de3b491e57add6d) timezone cleanup
+ - 2023-03-31 10:45:43 -0700 [1a3b8a5](../../commit/1a3b8a56fb200e5705d0d1a22b10abfa6c7d2389) message cleanup
+ - 2023-03-30 21:30:25 -0700 [693f2a4](../../commit/693f2a47b24516d79b7605b8ed2f53e0324f64ce) typo
+ - 2023-03-30 19:11:21 -0700 [7e4adf3](../../commit/7e4adf363204ef861f15e1b9da15a17c4da710fa) cleaner start code, added HH:16 or HH:46 code
+ - 2023-03-30 19:10:39 -0700 [fbd8c62](../../commit/fbd8c62bddf950462268099cd1a7fa9a249d4c37) typo
+ - 2023-03-30 09:30:59 -0700 [10bbe24](../../commit/10bbe24f8137682d3dbdeebb8ce52d2f1ec67873) moved datetime to correct place for display code, add more timer cleanup
+ - 2023-03-30 09:09:06 -0700 [a0309b4](../../commit/a0309b440ec0a6ce5bf1ae807dc117e363d2659a) blink the led corrected
+ - 2023-03-30 08:55:18 -0700 [027179f](../../commit/027179f0b71b40128418455bed38fd8ef6783813) blink led when waiting for IRQ
+ - 2023-03-30 08:04:19 -0700 [55c9d07](../../commit/55c9d079e9a0e111e8ccc34c60507fdb6e5c54fc) Merge branch 'main' of github.com:mahtin/es100-wwvb
+ - 2023-03-30 08:03:43 -0700 [85884f4](../../commit/85884f43be18eb4a55f08ba78bff244f2958f16e) info()->debug() making code less chatty
+ - 2023-03-25 12:48:12 -0700 [df7f2b9](../../commit/df7f2b9d08ff34019f94eff5967c4fabf67e196d) kill the timer when exiting
+ - 2023-03-25 07:57:15 -0700 [1e52561](../../commit/1e52561e71a08a251fc96df94025373214cb0d54) added modules
+ - 2023-03-25 07:53:27 -0700 [d8f15c3](../../commit/d8f15c319a3fafbe82d98942c6cd5bf63912f728) moved back to rst
+ - 2023-03-25 07:42:50 -0700 [93fd4ab](../../commit/93fd4ab5c68eeec05e2a0f0d736a2cd31656bd09) reset msec on clock set
+ - 2023-03-25 07:42:22 -0700 [ddf5f45](../../commit/ddf5f45d5ec0ee61c7615de4dccb92f00467c3bb) set WARNING as default logging level
+ - 2023-03-24 16:21:28 -0700 [fb4a26f](../../commit/fb4a26fa8b34e4e4f88b57b3f40946c7fda9454d) delete __pycache__
+ - 2023-03-24 10:26:24 -0700 [1fc1734](../../commit/1fc1734af8964c4f9f229072c86ed267b0d65435) Merge branch 'main' of github.com:mahtin/es100-wwvb
+ - 2023-03-24 10:20:44 -0700 [b975969](../../commit/b9759695e8935ce3aefff14cdb605acbb2a2ac64) 0.4.4
+ - 2023-03-24 10:20:25 -0700 [1f5deca](../../commit/1f5deca9b6fded785498f419fc53811d74e95aed) added OLED i2c 128x64 display support
+ - 2023-03-24 09:56:33 -0700 [7c0173c](../../commit/7c0173c3d4a0424ef3c1ba4425740ebaa750cfc7) white space cleanup
+ - 2023-03-24 09:52:55 -0700 [52a9288](../../commit/52a9288cf3c29bb8486f9a9da25c990a17f71d97) added OLED i2c 128x64 display support
+ - 2023-03-24 09:50:47 -0700 [2b0c55c](../../commit/2b0c55c845a45020e04f58f72132da05489be185) micropython ssd1306
+ - 2023-03-24 09:48:54 -0700 [cb16f6c](../../commit/cb16f6c4895e707baf5d2f334702bbd3f12efa11) removed incorrect subsecond code
+ - 2023-03-23 16:59:29 -0700 [df329c3](../../commit/df329c3e0ef94782be6f4ab99ad9ce818b029d64) more fixes for readthedocs
+ - 2023-03-23 16:49:23 -0700 [b8cf0d0](../../commit/b8cf0d08976ab99c55cf00ad31cf17082d096732) more fixes for readthedocs
+ - 2023-03-23 16:48:55 -0700 [a23aa7b](../../commit/a23aa7b862f2b735669148d7ff8a75bcbed74f31) fixed readthedocs docstring
+ - 2023-03-23 16:41:16 -0700 [76d1595](../../commit/76d1595533b44715bca6c51126c5733a68ead3b2) more fixes for readthedocs
+ - 2023-03-23 16:38:27 -0700 [7b5c3ae](../../commit/7b5c3ae17eddb8a168bd819a529ab4dfc992f5e6) more fixes for readthedocs
+ - 2023-03-23 16:36:00 -0700 [79d4569](../../commit/79d4569bc114bb0e57d0c98201b024cfb0fc82d9) more fixes for readthedocs
+ - 2023-03-23 16:30:33 -0700 [7cd3cd1](../../commit/7cd3cd14c8b796436f9cb281a91ebd12c83a6620) formats - not needed
+ - 2023-03-23 12:42:46 -0700 [c975cfd](../../commit/c975cfd72881564897c3190a4e4b09bce6c3ef80) gitignore added
+ - 2023-03-23 12:40:06 -0700 [b8dc173](../../commit/b8dc173b6e7fd7acfeeded4502428722790d9fa7) remove dist
+ - 2023-03-23 12:37:41 -0700 [0da3472](../../commit/0da3472fa9d73d2843f45ac5419b48d45734742c) 0.4.3
+ - 2023-03-23 12:36:29 -0700 [91d723b](../../commit/91d723b1104d0d81a5340b37eca8ed903044233a) add picture of Raspberry Pi Pico
+ - 2023-03-23 12:26:02 -0700 [4e0d34b](../../commit/4e0d34bc82d1948b64f458ff4b53a01576079bc6) 0.4.2
+ - 2023-03-23 12:25:50 -0700 [0092d7a](../../commit/0092d7ad9d2ceecfebcb01f5415b857ab27e5657) publish
