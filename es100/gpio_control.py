@@ -3,11 +3,14 @@
 Copyright (C) 2023 Martin J Levy - W6LHI/G8LHI - @mahtin - https://github.com/mahtin
 """
 
+import os
 import sys
+import time
 
 DEVICE_LIBRARY_UNKNOWN = 0
 DEVICE_LIBRARY_GPIO = 1
 DEVICE_LIBRARY_PIN = 2
+DEVICE_LIBRARY_BLINKA = 3
 
 DEVICE_LIBRARY = DEVICE_LIBRARY_UNKNOWN
 
@@ -23,8 +26,25 @@ try:
 except ImportError:
     pass
 
+try:
+    # https://docs.circuitpython.org/projects/blinka/en/latest/
+    # https://learn.adafruit.com/circuitpython-libraries-on-any-computer-with-mcp2221?view=all
+    # pip install --upgrade adafruit-blinka
+    os.environ['BLINKA_MCP2221'] = "1"
+    import board
+    import digitalio
+    DEVICE_LIBRARY = DEVICE_LIBRARY_BLINKA
+except ImportError:
+    pass
+
 if DEVICE_LIBRARY == DEVICE_LIBRARY_PIN:
     from pico.irq_wait_for_edge import irq_wait_for_edge
+
+if DEVICE_LIBRARY == DEVICE_LIBRARY_BLINKA:
+    def irq_wait_for_edge(irq, timeout):
+        ### XXX TODO needs work!!!
+        time.sleep(0.001)
+        return True
 
 IRQ_WAKEUP_DELAY = 2      # When waiting for an IRQ; wake up after this time and loop again
 
@@ -39,13 +59,14 @@ class ES100GPIO:
 
     :param en: EN pin number
     :param irq: IRQ pin number
+    :param use_gpiod: use gpiod library (if present)
     :param debug: True to enable debug messages
     :return: New instance of ES100GPIO()
 
     All GPIO control is via ES100GPIO() class.
     """
 
-    def __init__(self, en=None, irq=None, debug=False):
+    def __init__(self, en=None, irq=None, use_gpiod=False, debug=False):
         """ """
         if DEVICE_LIBRARY == DEVICE_LIBRARY_UNKNOWN:
             raise ES100GPIOError('import RPi.GPIO or machine failed - are you on a Raspberry Pi?')
@@ -53,6 +74,7 @@ class ES100GPIO:
             raise ES100GPIOError('GPIO must be defined - no default provided')
         self._gpio_en = en
         self._gpio_irq = irq
+        self._use_gpiod = use_gpiod
         self._debug = debug
         self._setup()
 
@@ -65,6 +87,11 @@ class ES100GPIO:
         if DEVICE_LIBRARY == DEVICE_LIBRARY_PIN:
             self._gpio_en = Pin('GP%d' % self._gpio_en, Pin.OUT)
             self._gpio_irq = Pin('GP%d'% self._gpio_irq, Pin.IN, Pin.PULL_DOWN)
+        if DEVICE_LIBRARY == DEVICE_LIBRARY_BLINKA:
+            self._gpio_en = digitalio.DigitalInOut(getattr(board, 'G%d' % self._gpio_en))
+            self._gpio_en.direction = digitalio.Direction.OUTPUT
+            self._gpio_irq = digitalio.DigitalInOut(getattr(board, 'G%d' % self._gpio_irq))
+            self._gpio_irq.direction = digitalio.Direction.INPUT
 
     def __del__(self):
         """ __del__ """
@@ -77,6 +104,8 @@ class ES100GPIO:
             GPIO.cleanup()
         if DEVICE_LIBRARY == DEVICE_LIBRARY_PIN:
             pass
+        if DEVICE_LIBRARY == DEVICE_LIBRARY_BLINKA:
+            pass
 
     def en_low(self):
         """ en_low()
@@ -88,6 +117,8 @@ class ES100GPIO:
             GPIO.output(self._gpio_en, GPIO.LOW)
         if DEVICE_LIBRARY == DEVICE_LIBRARY_PIN:
             self._gpio_en.off()
+        if DEVICE_LIBRARY == DEVICE_LIBRARY_BLINKA:
+            self._gpio_en.value = False
 
     def en_high(self):
         """ en_high()
@@ -99,6 +130,8 @@ class ES100GPIO:
             GPIO.output(self._gpio_en, GPIO.HIGH)
         if DEVICE_LIBRARY == DEVICE_LIBRARY_PIN:
             self._gpio_en.on()
+        if DEVICE_LIBRARY == DEVICE_LIBRARY_BLINKA:
+            self._gpio_en.value = True
 
     def irq_wait(self, timeout=None):
         """ irq_wait(self, timeout=None)
@@ -119,6 +152,9 @@ class ES100GPIO:
             if DEVICE_LIBRARY == DEVICE_LIBRARY_PIN:
                 if not self._gpio_irq.value():
                     break
+            if DEVICE_LIBRARY == DEVICE_LIBRARY_BLINKA:
+                if not self._gpio_irq.value:
+                    break
             if self._debug:
                 sys.stderr.write('H')
                 # sys.stderr.flush()
@@ -130,6 +166,8 @@ class ES100GPIO:
             if DEVICE_LIBRARY == DEVICE_LIBRARY_GPIO:
                 channel = GPIO.wait_for_edge(self._gpio_irq, GPIO.BOTH, timeout=this_timeout)
             if DEVICE_LIBRARY == DEVICE_LIBRARY_PIN:
+                channel = irq_wait_for_edge(self._gpio_irq, timeout=this_timeout)
+            if DEVICE_LIBRARY == DEVICE_LIBRARY_BLINKA:
                 channel = irq_wait_for_edge(self._gpio_irq, timeout=this_timeout)
             if channel is None:
                 # timeout happened

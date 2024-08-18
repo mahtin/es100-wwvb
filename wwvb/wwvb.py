@@ -9,11 +9,13 @@ wwvb - full function command line command to provide control and receiption from
 Copyright (C) 2023 Martin J Levy - W6LHI/G8LHI - @mahtin - https://github.com/mahtin
 """
 
+import os
 import sys
 import time
 import logging
 import signal
 import getopt
+import platform
 from datetime import timedelta
 
 from es100 import ES100, ES100Error, __version__
@@ -56,6 +58,7 @@ def doit(program_name, args):
     flag_force_tracking = False
     antenna_choice = None
     ntpd_unit_number = None
+    flag_gpiod = False
 
     # needed within this and other modules
     required_format = '%(asctime)s %(name)s %(levelname)s %(message)s'
@@ -66,7 +69,7 @@ def doit(program_name, args):
                                 '[-h|--help]',
                                 '[-v|--verbose]',
                                 '[-d|--debug]',
-                                '[-b|--bus={0-1}]',
+                                '[-b|--bus={0-N}]',
                                 '[-a|--address={8-127}]',
                                 '[-i|--irq={1-40}]',
                                 '[-e|--en={1-40}]',
@@ -76,6 +79,7 @@ def doit(program_name, args):
                                 '[-t|--tracking]',
                                 '[-A|--antenna={0-1}]',
                                 '[-N|--ntpd={0-255}]',
+                                '[-G|--gpiod]',
                             ])
 
     # we set defaults from config file - so that command line can override
@@ -107,10 +111,12 @@ def doit(program_name, args):
         flag_verbose = config['debug.verbose']
     if 'ntpd.unit' in config:
         ntpd_unit_number = config['ntpd.unit']
+    if 'wwvb.gpiod' in config:
+        flag_gpiod = config['wwvb.gpiod']
 
     try:
         opts, args = getopt.getopt(args,
-                                    'Vhvdb:a:i:e:l:m:ntAN:',
+                                    'Vhvdb:a:i:e:l:m:ntAN:G',
                                     [
                                         'version',
                                         'help',
@@ -127,6 +133,7 @@ def doit(program_name, args):
                                         'tracking',
                                         'antenna',
                                         'ntpd=',
+                                        'gpiod',
                                     ])
     except getopt.GetoptError:
         sys.exit('usage: ' + usage)
@@ -150,7 +157,7 @@ def doit(program_name, args):
             try:
                 i2c_bus = int(arg)
             except ValueError:
-                print("%s %s" % (program_name, 'invalid bus'), file=sys.stderr)
+                print("%s %s" % (program_name, 'invalid i2c bus number'), file=sys.stderr)
                 sys.exit('usage: ' + usage)
             continue
         if opt in ('-a', '--address'):
@@ -169,7 +176,7 @@ def doit(program_name, args):
             continue
         if opt in ('-e', '--en'):
             try:
-                es100_irq = int(arg)
+                es100_en = int(arg)
             except ValueError:
                 print("%s %s" % (program_name, 'invalid en'), file=sys.stderr)
                 sys.exit('usage: ' + usage)
@@ -212,6 +219,16 @@ def doit(program_name, args):
                 print("%s %s" % (program_name, 'invalid ntpd unit number'), file=sys.stderr)
                 sys.exit('usage: ' + usage)
             continue
+        if opt in ('-G', '--gpiod'):
+            flag_gpiod = True
+            if es100_irq == RPI_DEFAULT_GPIO_IRQ or es100_en == RPI_DEFAULT_GPIO_EN:
+                print("%s %s" % (program_name, 'gpiod based boards requires irq/en pin selection'), file=sys.stderr)
+                sys.exit('usage: ' + usage)
+            continue
+
+    if not is_i2c_bus_valid(i2c_bus):
+        print("%s %s" % (program_name, 'i2c bus number not present on system'), file=sys.stderr)
+        sys.exit('usage: ' + usage)
 
     log = logging.getLogger(program_name)
     if flag_debug:
@@ -232,7 +249,7 @@ def doit(program_name, args):
     our_latency = timedelta(microseconds=latency_secs*1000000.0)
 
     try:
-        es100 = ES100(antenna=antenna_choice, irq=es100_irq, en=es100_en, bus=i2c_bus, address=i2c_address, debug=flag_debug, verbose=flag_verbose)
+        es100 = ES100(antenna=antenna_choice, irq=es100_irq, en=es100_en, bus=i2c_bus, address=i2c_address, use_gpiod=flag_gpiod, debug=flag_debug, verbose=flag_verbose)
     except ES100Error as err:
         sys.exit(err)
 
@@ -358,6 +375,21 @@ def update_ntpd(driver28, log, received_dt, sys_received_dt, leap_second):
     """
     log.info('NTPD being updated: %s', received_dt)
     driver28.update(received_dt, sys_received_dt, leap_second)
+
+def is_i2c_bus_valid(bus):
+    """ _is_i2c_bus_valid """
+    system = platform.system()
+    if system == 'Linux':
+        try:
+            dev_name = '/dev/i2c-%d' % (bus)
+        except ValueError:
+            return False
+        return os.path.exists(dev_name)
+    if system == 'Darwin' or system == 'Windows':
+        # don't know how to test/check (yet) - but return true in case there's a library being used
+        return True
+    # no idea where you're running!
+    return False
 
 def signal_handler(signalnum, current_stack_frame):
     """ signal_handler()

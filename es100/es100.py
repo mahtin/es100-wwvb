@@ -45,9 +45,10 @@ class ES100:
     :param en: EN pin number
     :param bus: i2c bus number
     :param address: i2c address
+    :param use_gpiod: gpiod usage (default is no)
     :param debug: True to enable debug messages
     :param verbose: True to enable verbose messages
-    :return: New instance of ES100GPIO()
+    :return: New instance of ES100()
 
     ES100() provides all the controls for communicating with the ES100-MOD receiver
     """
@@ -129,7 +130,7 @@ class ES100:
         DST1            = 0x40  # DST[0:1] 11 == DST in effect, 01 == DST ends today
         TRACKING        = 0x80  # 1 == reception was tracking operation
 
-    def __init__(self, antenna=None, irq=None, en=None, bus=None, address=None, debug=False, verbose=False):
+    def __init__(self, antenna=None, irq=None, en=None, bus=None, address=None, use_gpiod=False, debug=False, verbose=False):
         """ :meta private: """
 
         self._gpio = None
@@ -165,11 +166,11 @@ class ES100:
             self._log.setLevel(logging.INFO)
 
         self._gpio_irq = irq
-        if not self._gpio_irq:
+        if self._gpio_irq is None:
             raise ES100Error('gpio irq (interrupt-request) pin must be provided')
 
         self._gpio_en = en
-        if not self._gpio_en:
+        if self._gpio_en is None:
             raise ES100Error('gpio en (enable) pin must be provided')
 
         self._i2c_bus = bus
@@ -180,10 +181,14 @@ class ES100:
         if self._i2c_address is None:
             self._i2c_address = ES100_SLAVE_ADDR
 
+        self._use_gpiod = use_gpiod
+        if self._use_gpiod is None:
+            self._use_gpiod = False
+
         # start settting up hardware - if it exists!
 
         try:
-            self._gpio = ES100GPIO(self._gpio_en, self._gpio_irq, debug=debug)
+            self._gpio = ES100GPIO(self._gpio_en, self._gpio_irq, use_gpiod=self._use_gpiod, debug=debug)
         except ES100GPIOError as err:
             raise ES100Error('GPIO open error: %s' % (err)) from err
         self._log.info('gpio connected (EN/Enable=%d IRQ=%d)', self._gpio_en, self._gpio_irq)
@@ -362,7 +367,7 @@ class ES100:
             raise ES100Error('i2c read: %s' % (err)) from err
 
         try:
-            rval = self._i2c.read()
+            rval = self._i2c.read(addr)
         except ES100I2CError as err:
             self._log.error('i2c read: %s', err)
             raise ES100Error('i2c read: %s' % (err)) from err
